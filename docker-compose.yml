@@ -8,6 +8,8 @@ services:
       - ./logs:/app/logs
       - ./data:/app/data
     environment:
+      - EMAIL_USER=
+      - EMAIL_PASS=
       - TZ=America/New_York
     restart: unless-stopped
     healthcheck:

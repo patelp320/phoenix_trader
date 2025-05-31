@@ -1,8 +1,24 @@
-import yagmail, datetime as dt, duckdb, git, os
-yag = yagmail.SMTP()
+import os, datetime as dt, sys
+try:
+    import yagmail
+    SMTP_USER = os.getenv("EMAIL_USER")
+    SMTP_PASS = os.getenv("EMAIL_PASS")
+    yag = yagmail.SMTP(SMTP_USER, SMTP_PASS) if SMTP_USER and SMTP_PASS else None
+except Exception as e:  # yagmail missing or mis-configured
+    yag = None
+    print("[MAIL] e-mail disabled →", e, file=sys.stderr)
+
 def hourly():
-    sha = git.Repo('.').head.commit.hexsha[:7]
-    yag.send(os.getenv("EMAIL_TO"), f"[{dt.datetime.now():%H:%M}] heartbeat {sha}", "Bot alive.")
+    subject = f"[{dt.datetime.now():%H:%M}] heartbeat"
+    body = "Bot alive."
+    if yag:
+        yag.send(to=os.getenv("EMAIL_TO"), subject=subject, contents=body)
+    else:
+        print("[MAIL] (disabled) " + subject)
+
 def daily():
-    pnl = duckdb.query("SELECT 0").fetchone()[0]   # placeholder
-    yag.send(os.getenv("EMAIL_TO"), f"Daily P/L ${pnl:.2f}", "Placeholder P/L")
+    subject = "Daily P/L $0.00 (placeholder)"
+    if yag:
+        yag.send(to=os.getenv("EMAIL_TO"), subject=subject, contents="P/L stub")
+    else:
+        print("[MAIL] (disabled) " + subject)

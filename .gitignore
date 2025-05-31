@@ -3,10 +3,10 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 
-# Env & tooling
+# Virtual env
 .venv/
-.env
-.eggs/
 
-# Misc
+# Logs & data
 logs/
+data/
+

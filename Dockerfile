@@ -3,6 +3,8 @@ WORKDIR /app
 RUN apt-get update -qq && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 # Copy pyproject for dependency install
 COPY pyproject.toml poetry.lock* ./
+COPY .git .
+
 RUN pip install --upgrade pip \
  && pip install poetry==1.8.2 \
  && poetry config virtualenvs.create false \

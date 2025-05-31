@@ -9,4 +9,4 @@ RUN pip install --upgrade pip \
 # Copy source code
 COPY src src
 ENV TZ=America/New_York
-CMD ["python", "-c", "print('Container up — scheduler not yet wired')"]
+CMD ["python","-m","phoenix_trader"]

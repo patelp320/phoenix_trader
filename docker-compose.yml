@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  bot:
+    build: .
+    container_name: phoenix_bot_ctr
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+    environment:
+      - TZ=America/New_York
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo ok"]
+      interval: 2m

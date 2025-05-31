@@ -9,4 +9,5 @@ RUN pip install --upgrade pip \
 # Copy source code
 COPY src src
 ENV TZ=America/New_York
+ENV PYTHONPATH=/app/src
 CMD ["python","-m","phoenix_trader"]

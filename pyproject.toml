@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "phoenix_trader"
+version = "0.1.0"
+description = ""
+authors = ["patelp320 <patelp320@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+yfinance = "^0.2.61"
+duckdb = "^1.3.0"
+pandas = "^2.2.3"
+numpy = "^2.2.6"
+scikit-learn = "^1.6.1"
+apscheduler = "^3.11.0"
+yagmail = "^0.15.293"
+ib-insync = "^0.9.86"
+aiohttp = "^3.12.6"
+feedparser = "^6.0.11"
+gitpython = "^3.1.44"
+pytest = "^8.3.5"
+flake8 = "^7.2.0"
+bandit = "^1.8.3"
+ollama = "^0.5.1"
+requests = "^2.32.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

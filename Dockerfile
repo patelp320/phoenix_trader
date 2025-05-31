@@ -1,5 +1,6 @@
 FROM python:3.11-slim
 WORKDIR /app
+RUN apt-get update -qq && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 # Copy pyproject for dependency install
 COPY pyproject.toml poetry.lock* ./
 RUN pip install --upgrade pip \

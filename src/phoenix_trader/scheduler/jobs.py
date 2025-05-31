@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from ml.online import learn_chunk
-from autofix.agent import run as auto_fix
-from mail.report import hourly, daily
+from phoenix_trader.ml.online import learn_chunk
+from phoenix_trader.autofix.agent import run as auto_fix
+from phoenix_trader.mail.report import hourly, daily
 
 def start():
     sc = BackgroundScheduler(timezone="America/New_York")

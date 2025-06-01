@@ -14,3 +14,64 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "echo ok"]
       interval: 2m
+
+
+
+
+
+    volumes:
+      - .:/workspace
+    environment:
+      LOCAL_OLLAMA: http://llm:11434
+    depends_on:
+      - llm
+
+    entrypoint: ["/bin/sh","-c"]
+    command: >
+      ollama serve &
+      pid=$$! ; sleep 5 ;
+      ollama pull deepseek-coder:33b-instruct-q4 &&
+      ollama pull codellama:13b &&
+      wait $$pid
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
+  llm:
+    image: ollama/ollama:latest
+    entrypoint: ["/bin/sh","-c"]
+    command: >
+      ollama serve &
+      pid=$$! ; sleep 5 ;
+      ollama pull deepseek-coder:33b-instruct-q4 &&
+      ollama pull codellama:13b &&
+      ollama run codellama:13b "ping" || true &&
+      ollama run deepseek-coder:33b-instruct-q4 "ping" || true &&
+      wait $$pid
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
+    command: ["python", "orchestrator.py"]
+    volumes:
+      - .:/workspace
+    environment:
+      LOCAL_OLLAMA: http://llm:11434
+    depends_on:
+      - llm
+
+  self_heal:
+    build: ./self_heal
+    command: ["python", "orchestrator.py"]
+    volumes:
+      - .:/workspace
+    environment:
+      LOCAL_OLLAMA: http://llm:11434
+    depends_on:
+      - llm

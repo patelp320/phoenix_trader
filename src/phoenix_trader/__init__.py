@@ -1,4 +1,5 @@
 import multiprocessing as _mp, os as _os
+from phoenix_trader.boot import alias  # noqa: F401 (side-effect import)
 
 _os.environ.update({
 

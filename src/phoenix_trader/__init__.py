@@ -1,69 +1,47 @@
-import multiprocessing as _mp, os as _os
-from phoenix_trader.boot import alias  # noqa: F401 (side-effect import)
+"""
+Package bootstrap for Phoenix Trader.
+Sets env threads, installs OpenDevin alias, and wires global crash logger
+→ instant CrewAI self-fixer.
+"""
 
-_os.environ.update({
+import os, sys, multiprocessing as mp, pathlib, json, traceback, datetime as dt
 
-    "OMP_NUM_THREADS": str(_mp.cpu_count()),
-
-    "MKL_NUM_THREADS": str(_mp.cpu_count()),
-
-    "NUMEXPR_NUM_THREADS": str(_mp.cpu_count())
-
+# ---------- BLAS / NumPy: use all CPU cores -----------------------------
+os.environ.update({
+    "OMP_NUM_THREADS": str(mp.cpu_count()),
+    "MKL_NUM_THREADS": str(mp.cpu_count()),
+    "NUMEXPR_NUM_THREADS": str(mp.cpu_count())
 })
 
-import logging, json, pathlib, traceback, datetime as dt
+# ---------- expose OpenDevin alias (side effect import) -----------------
+from phoenix_trader.boot import alias  # noqa: F401
 
-
-def log_exception(exc: Exception):
-
+# ---------- global crash logger + instant autofix -----------------------
+def _log_and_fix(exc_type, exc_value, exc_tb):
     rec = {
-
         "ts": dt.datetime.utcnow().isoformat(),
-
-        "type": type(exc).__name__,
-
-        "trace": traceback.format_exc()
-
-    }
-
-    p = pathlib.Path("logs/errors.jsonl")
-
-    p.parent.mkdir(exist_ok=True)
-
-    with p.open("a") as f:
-
-        f.write(json.dumps(rec) + "\n")
-
-import time, importlib
-importlib.import_module("phoenix_trader.scheduler.jobs").start()
-time.sleep(10**9)
-
-# -------- global crash logger (handles import-time errors too) --------
-import sys, traceback, json, pathlib, datetime as _dt
-def _log_unhandled(exc_type, exc_value, exc_tb):
-    rec = {
-        "ts": _dt.datetime.utcnow().isoformat(),
         "type": exc_type.__name__,
         "trace": "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
     }
-    p = pathlib.Path("logs/errors.jsonl")
-    p.parent.mkdir(exist_ok=True)
-    with p.open("a") as f:
+    log = pathlib.Path("logs/errors.jsonl")
+    log.parent.mkdir(exist_ok=True)
+    with log.open("a") as f:
         f.write(json.dumps(rec) + "\n")
-    sys.__excepthook__(exc_type, exc_value, exc_tb)  # still print to stderr
-sys.excepthook = _log_unhandled
-    # kick off instant patch in a background thread
 
+    # kick CrewAI multi-agent fixer in the background
     try:
+        from phoenix_trader.autofix.test_from_trace import write_test
+        from phoenix_trader.autofix.crew_fix import run as crew_fix
+        import threading
+        def _worker():
+            write_test()
+            crew_fix()
+        threading.Thread(target=_worker, daemon=True).start()
+    except Exception as e:
+        import logging
+        logging.error("Autofix bootstrap failed: %s", e)
 
-        from phoenix_trader.autofix.agent import run as _auto_fix
+    # still print default traceback to stderr
+    sys.__excepthook__(exc_type, exc_value, exc_tb)
 
-        import threading as _th
-
-        _th.Thread(target=_auto_fix, daemon=True).start()
-
-    except Exception as _e:
-
-        pass
-
-# ----------------------------------------------------------------------
+sys.excepthook = _log_and_fix

@@ -6,6 +6,7 @@ COPY pyproject.toml poetry.lock* ./
 COPY .git .
 
 RUN pip install --upgrade pip \
+RUN pip install --no-cache-dir playwright json-repair chromadb llama-index litellm tenacity termcolor toml && playwright install --with-deps --silent
  && pip install poetry==1.8.2 \
  && poetry config virtualenvs.create false \
  && poetry install --no-interaction --no-root

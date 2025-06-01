@@ -7,10 +7,12 @@ COPY .git .
 
 RUN pip install --upgrade pip \
  && pip install poetry==1.8.2 \
+RUN playwright install --with-deps --silent
  && poetry config virtualenvs.create false \
  && poetry install --no-interaction --no-root
 # Copy source code
 COPY src src
+COPY devin devin
 ENV TZ=America/New_York
 ENV PYTHONPATH=/app/src
 CMD ["python","-m","phoenix_trader"]

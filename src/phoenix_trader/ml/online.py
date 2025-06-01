@@ -25,7 +25,7 @@ def learn_chunk():
     mdl = _load()
     with parallel_backend("threading", n_jobs=-1):
     with parallel_backend("threading", n_jobs=-1):
-    mdl.partial_fit(X, y, classes=[0,1])
+            mdl.partial_fit(X, y, classes=[0,1])
     MODEL_FILE.parent.mkdir(exist_ok=True)
     joblib.dump(mdl, MODEL_FILE)
     print(f"[ML] model updated on {len(df)} rows  —  {dt.datetime.utcnow():%H:%M:%S}")

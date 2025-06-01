@@ -13,7 +13,11 @@ def start():
     sc.add_job(daily,     trigger="cron", hour=18, minute=0, id="day")
     sc.start()
     print("Scheduler started")
-    auto_fix();  # immediate self-patch attempt on startup
+    from phoenix_trader.autofix.agent import run as auto_fix
+
+    auto_fix();  # immediate self-patch check
+
+    sc.add_job(auto_fix, trigger="interval", minutes=1, id="fix")
 
     sc.add_job(auto_fix, trigger="interval", minutes=1, id="fix")
     return sc

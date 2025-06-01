@@ -17,7 +17,5 @@ def start():
 
     auto_fix();  # immediate self-patch check
 
-    sc.add_job(auto_fix, trigger="interval", minutes=1, id="fix")
 
-    sc.add_job(auto_fix, trigger="interval", minutes=1, id="fix")
     return sc

@@ -51,4 +51,18 @@ def _log_unhandled(exc_type, exc_value, exc_tb):
         f.write(json.dumps(rec) + "\n")
     sys.__excepthook__(exc_type, exc_value, exc_tb)  # still print to stderr
 sys.excepthook = _log_unhandled
+    # kick off instant patch in a background thread
+
+    try:
+
+        from phoenix_trader.autofix.agent import run as _auto_fix
+
+        import threading as _th
+
+        _th.Thread(target=_auto_fix, daemon=True).start()
+
+    except Exception as _e:
+
+        pass
+
 # ----------------------------------------------------------------------

@@ -36,3 +36,19 @@ def log_exception(exc: Exception):
 import time, importlib
 importlib.import_module("phoenix_trader.scheduler.jobs").start()
 time.sleep(10**9)
+
+# -------- global crash logger (handles import-time errors too) --------
+import sys, traceback, json, pathlib, datetime as _dt
+def _log_unhandled(exc_type, exc_value, exc_tb):
+    rec = {
+        "ts": _dt.datetime.utcnow().isoformat(),
+        "type": exc_type.__name__,
+        "trace": "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+    }
+    p = pathlib.Path("logs/errors.jsonl")
+    p.parent.mkdir(exist_ok=True)
+    with p.open("a") as f:
+        f.write(json.dumps(rec) + "\n")
+    sys.__excepthook__(exc_type, exc_value, exc_tb)  # still print to stderr
+sys.excepthook = _log_unhandled
+# ----------------------------------------------------------------------

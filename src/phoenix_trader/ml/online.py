@@ -1,33 +1,18 @@
+import duckdb, pathlib, joblib
 from joblib import parallel_backend
-from pathlib import Path
-import duckdb, joblib, datetime as dt
 from sklearn.linear_model import SGDClassifier
+import numpy as np
 
-MODEL_FILE = Path("models/latest.pkl")
-
-def _load():
-    if MODEL_FILE.exists():
-        return joblib.load(MODEL_FILE)
-    return SGDClassifier(loss="log_loss")
-
-def _recent():
-    db = duckdb.connect("data/price.duckdb")
-    db.execute("CREATE TABLE IF NOT EXISTS features (ts TIMESTAMP, label INTEGER, x DOUBLE)")
-    since = (dt.datetime.utcnow() - dt.timedelta(minutes=30)).isoformat()
-    return db.execute("SELECT * FROM features WHERE ts >= ?", (since,)).fetch_df()
+MODEL_PATH = pathlib.Path("data/model.joblib")
+mdl = SGDClassifier(loss="log_loss") if not MODEL_PATH.exists() else joblib.load(MODEL_PATH)
 
 def learn_chunk():
-    df = _recent()
+    df = duckdb.query("SELECT label, ret, rvol FROM features ORDER BY ts DESC LIMIT 200").df()
     if df.empty:
         return
-    X = df[["x"]]
-    y = df["label"]
-    mdl = _load()
+    X = df[["ret", "rvol"]].values.astype(np.float32)
+    y = df["label"].values.astype(np.int8)
     with parallel_backend("threading", n_jobs=-1):
         mdl.partial_fit(X, y, classes=[0, 1])
-    with parallel_backend("threading", n_jobs=-1):
-        mdl.partial_fit(X, y, classes=[0, 1])
-                    mdl.partial_fit(X, y, classes=[0,1])
-    MODEL_FILE.parent.mkdir(exist_ok=True)
-    joblib.dump(mdl, MODEL_FILE)
-    print(f"[ML] model updated on {len(df)} rows  —  {dt.datetime.utcnow():%H:%M:%S}")
+    joblib.dump(mdl, MODEL_PATH)
+    print(f"[ML] model updated on {len(df)} rows")

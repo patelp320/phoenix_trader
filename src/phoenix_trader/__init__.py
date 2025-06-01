@@ -1,3 +1,15 @@
+import multiprocessing as _mp, os as _os
+
+_os.environ.update({
+
+    "OMP_NUM_THREADS": str(_mp.cpu_count()),
+
+    "MKL_NUM_THREADS": str(_mp.cpu_count()),
+
+    "NUMEXPR_NUM_THREADS": str(_mp.cpu_count())
+
+})
+
 import logging, json, pathlib, traceback, datetime as dt
 
 

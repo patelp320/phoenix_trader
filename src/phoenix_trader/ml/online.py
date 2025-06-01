@@ -1,3 +1,4 @@
+from joblib import parallel_backend
 from pathlib import Path
 import duckdb, joblib, datetime as dt
 from sklearn.linear_model import SGDClassifier
@@ -22,6 +23,7 @@ def learn_chunk():
     X = df[["x"]]
     y = df["label"]
     mdl = _load()
+    with parallel_backend("threading", n_jobs=-1):\
     mdl.partial_fit(X, y, classes=[0,1])
     MODEL_FILE.parent.mkdir(exist_ok=True)
     joblib.dump(mdl, MODEL_FILE)

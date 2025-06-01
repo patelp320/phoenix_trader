@@ -7,7 +7,6 @@ COPY .git .
 
 RUN pip install --upgrade pip \
  && pip install poetry==1.8.2 \
-RUN playwright install --with-deps --silent
  && poetry config virtualenvs.create false \
  && poetry install --no-interaction --no-root
 # Copy source code

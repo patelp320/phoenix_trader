@@ -1260,6 +1260,17 @@ files = [
 ]
 
 [[package]]
+name = "json-repair"
+version = "0.46.0"
+description = "A package to repair broken json strings"
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "json_repair-0.46.0-py3-none-any.whl", hash = "sha256:54d6a9889fba0846b80befb2b1aca619103ad3ed74612fb3fedd965a4a3b1653"},
+    {file = "json_repair-0.46.0.tar.gz", hash = "sha256:abc751162baf8e384685558acba978478e833c1207be31468d9babfaf8029ab6"},
+]
+
+[[package]]
 name = "jsonschema"
 version = "4.24.0"
 description = "An implementation of JSON Schema validation for Python"
@@ -3569,4 +3580,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "0ffff787e6c0268e76c5a92f88f33edad9771c0214eeb70cb59a321d712a4f8a"
+content-hash = "d9fda1bcc504936d1d4663dbc2af6981901c8a3363e4fe08cbb4264ad3d44412"

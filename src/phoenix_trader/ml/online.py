@@ -7,6 +7,11 @@ MODEL_PATH = pathlib.Path("data/model.joblib")
 mdl = SGDClassifier(loss="log_loss") if not MODEL_PATH.exists() else joblib.load(MODEL_PATH)
 
 def learn_chunk():
+    # skip until ingest has created the table
+
+    if not duckdb.table_exists("features"):
+
+        print("[ML] waiting for first ingest ..."); return
     df = duckdb.query("SELECT label, ret, rvol FROM features ORDER BY ts DESC LIMIT 200").df()
     if df.empty:
         return

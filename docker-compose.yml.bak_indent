@@ -1,0 +1,28 @@
+services:
+  bot:
+    build: .
+    container_name: phoenix_bot_ctr
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+    environment:
+      - EMAIL_USER=patelp320@gmail.com
+      - EMAIL_PASS=hzewuqeifxnduljd
+      - TZ=America/New_York
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo ok"]
+      interval: 2m
+
+
+
+
+  self_heal:
+    build: ./self_heal
+    volumes:
+      - .:/workspace
+    environment:
+    depends_on:
+      - llm
+      LOCAL_OLLAMA: http://llm:11434

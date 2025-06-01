@@ -1,0 +1,54 @@
+services:
+  bot:
+    build: .
+    container_name: phoenix_bot_ctr
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+    environment:
+      - EMAIL_USER=patelp320@gmail.com
+      - EMAIL_PASS=hzewuqeifxnduljd
+      - TZ=America/New_York
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo ok"]
+      interval: 2m
+
+
+
+  llm:
+    image: ollama/ollama:latest
+    entrypoint: [""]
+    command: >
+      /bin/sh -c "
+      ollama pull deepseek-coder:33b-instruct-q4 &&
+      ollama pull codellama:13b &&
+      exec ollama serve
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
+  self_heal:
+    build: ./self_heal
+    volumes:
+      - .:/workspace
+    environment:
+      LOCAL_OLLAMA: http://llm:11434
+    depends_on:
+      llm:
+        condition: service_healthy
+
+  self_heal:
+    build: ./self_heal
+    volumes:
+      - .:/workspace
+    environment:
+      LOCAL_OLLAMA: http://llm:11434
+    depends_on:
+      llm:
+        condition: service_healthy

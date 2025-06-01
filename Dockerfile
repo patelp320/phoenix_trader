@@ -1,18 +1,23 @@
 FROM python:3.11-slim
-WORKDIR /app
-RUN apt-get update -qq && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
-# Copy pyproject for dependency install
-COPY pyproject.toml poetry.lock* ./
-COPY .git .
 
-RUN pip install --upgrade pip \
-RUN pip install --no-cache-dir playwright json-repair chromadb llama-index litellm tenacity termcolor toml && playwright install --with-deps --silent
- && pip install poetry==1.8.2 \
- && poetry config virtualenvs.create false \
- && poetry install --no-interaction --no-root
-# Copy source code
+# ---------- basic tooling ----------
+RUN apt-get update && apt-get install -y \
+        build-essential git curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# ---------- poetry ----------
+RUN pip install --upgrade pip && pip install poetry
+
+# ---------- Python deps that devin/crew/auto-fix need ----------
+RUN pip install --no-cache-dir \
+        playwright==1.44.0 \
+        json-repair chromadb llama-index litellm tenacity termcolor toml && \
+    playwright install --with-deps --silent   # headless browsers
+
+# ---------- project code ----------
+WORKDIR /app
+COPY pyproject.toml poetry.lock* ./
+RUN poetry install --no-root
 COPY src src
-COPY devin devin
-ENV TZ=America/New_York
-ENV PYTHONPATH=/app/src
-CMD ["python","-m","phoenix_trader"]
+
+CMD ["python", "-m", "phoenix_trader"]

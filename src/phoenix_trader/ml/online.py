@@ -24,6 +24,7 @@ def learn_chunk():
     y = df["label"]
     mdl = _load()
     with parallel_backend("threading", n_jobs=-1):\
+    with parallel_backend("threading", n_jobs=-1):\
     mdl.partial_fit(X, y, classes=[0,1])
     MODEL_FILE.parent.mkdir(exist_ok=True)
     joblib.dump(mdl, MODEL_FILE)
